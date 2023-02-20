@@ -1,8 +1,5 @@
 name: dragonsapprentice
-summary: Use code blocks to move objects in the world and program allies
-description: |
-  An evil force has spread its way across the land of Ovun and is threatening to destroy this peaceful city. Explore hidden temples, learn magic runes that let you program and control the elements around you, and battle the shadow fiends. Find all the keys in the Dragon Temples to awaken the dragon. Be the hero that Ovun needs!
-version: '1.1'
+adopt-info: dragonsapprentice-source
 base: core22
 architectures:
 - amd64
@@ -11,17 +8,13 @@ grade: stable
 
 apps:
   dragonsapprentice:
+    desktop: com.endlessnetwork.dragonsapprentice.desktop
     extensions: [gnome]
-    command: /DragonsApprentice/DragonsApprentice.x64
+    command: DragonsApprentice/DragonsApprentice.x64
     plugs:
       - audio-playback
-      - desktop
-      - desktop-legacy
       - joystick
       - network
-      - opengl
-      - wayland
-      - x11
 
 parts:
   dragonsapprentice:
@@ -30,9 +23,16 @@ parts:
     override-prime: |
       craftctl default
       chmod +x $CRAFT_PRIME/DragonsApprentice/DragonsApprentice.x64
-  desktop-files:
-    plugin: nil
-    source: desktop-file
-    override-build: |
+  dragonsapprentice-source:
+    source: https://github.com/endless-network/DragonsApprentice_Binary/archive/refs/tags/v1.1.tar.gz
+    plugin: dump
+    parse-info: [com.endlessnetwork.dragonsapprentice.appdata.xml]
+    override-pull: |
+      craftctl default
+      sed -i 's|Icon=com.endlessnetwork.dragonsapprentice$|Icon=${SNAP}/meta/gui/icon.png|g' $CRAFT_PART_SRC/com.endlessnetwork.dragonsapprentice.desktop
+      sed -i 's|Exec=com.endlessnetwork.dragonsapprentice.sh$|Exec=dragonsapprentice|g' $CRAFT_PART_SRC/com.endlessnetwork.dragonsapprentice.desktop
+      # Work around the latest version number missing from the releases section of appdata
+      sed -i 's|version="1.0|version="1.1|g' $CRAFT_PART_SRC/com.endlessnetwork.dragonsapprentice.appdata.xml
+
       mkdir -p $CRAFT_PART_INSTALL/meta/gui
-      cp * $CRAFT_PART_INSTALL/meta/gui
+      cp com.endless_network.dragonsapprentice128.png $CRAFT_PART_INSTALL/meta/gui/icon.png
